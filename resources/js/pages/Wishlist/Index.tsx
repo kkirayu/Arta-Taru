@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Head, router, Link } from '@inertiajs/react';
-import { Heart, Trash2 } from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { Heart, Trash2, Package, ArrowRight } from 'lucide-react';
 import PublicLayout from '@/layouts/PublicLayout';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/EmptyState';
-import type { Product, PageProps } from '@/types';
+import type { Product } from '@/types';
 
 export default function WishlistIndex() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -40,27 +40,52 @@ export default function WishlistIndex() {
     setWishlistIds(newIds);
     setProducts((prev) => prev.filter((p) => p.id !== id));
     localStorage.setItem('wishlist', JSON.stringify(newIds));
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const clearAll = () => {
+    setWishlistIds([]);
+    setProducts([]);
+    localStorage.removeItem('wishlist');
+    window.dispatchEvent(new Event('storage'));
   };
 
   return (
     <PublicLayout>
-      <Head title="Wishlist" />
+      <Head title="Wishlist Saya" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Wishlist Saya</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Wishlist Saya</h1>
+            <p className="text-gray-400 text-sm mt-1">
+              {wishlistIds.length > 0 ? `${wishlistIds.length} produk tersimpan` : 'Simpan produk favorit Anda'}
+            </p>
+          </div>
+          {products.length > 0 && (
+            <button
+              onClick={clearAll}
+              className="text-sm text-gray-500 hover:text-red-600 flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Hapus Semua
+            </button>
+          )}
+        </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
+          <div className="flex items-center justify-center py-24">
+            <div className="w-10 h-10 border-4 border-gray-100 border-t-blue-600 rounded-full animate-spin" />
           </div>
         ) : products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
             {products.map((product) => (
-              <div key={product.id} className="relative">
+              <div key={product.id} className="relative group">
                 <ProductCard product={product} />
                 <button
                   onClick={() => removeItem(product.id)}
-                  className="absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  aria-label="Hapus dari wishlist"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -68,12 +93,14 @@ export default function WishlistIndex() {
             ))}
           </div>
         ) : (
-          <EmptyState
-            icon={Heart}
-            title="Wishlist kosong"
-            description="Belum ada produk yang ditambahkan ke wishlist."
-            action={{ label: 'Jelajahi Katalog', href: '/katalog' }}
-          />
+          <div className="py-20">
+            <EmptyState
+              icon={Heart}
+              title="Wishlist masih kosong"
+              description="Tambahkan produk ke wishlist dengan menekan ikon hati pada produk yang Anda sukai."
+              action={{ label: 'Jelajahi Katalog', href: '/katalog' }}
+            />
+          </div>
         )}
       </div>
     </PublicLayout>

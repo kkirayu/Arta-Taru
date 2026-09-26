@@ -293,7 +293,7 @@ export default function Home({ banners, categories, featured_products, latest_pr
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Alamat</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">Jl. Raya Utama No. 123, Bandung, Jawa Barat</p>
+                <p className="text-sm text-gray-500 leading-relaxed">Jl. Malioboro No. 45, Yogyakarta, DI Yogyakarta</p>
               </div>
             </div>
             <div className="flex items-start gap-4 bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow">
@@ -302,8 +302,8 @@ export default function Home({ banners, categories, featured_products, latest_pr
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Jam Operasional</h3>
-                <p className="text-sm text-gray-500">Senin - Sabtu: 08:00 - 17:00</p>
-                <p className="text-sm text-gray-400">Minggu: Tutup</p>
+                <p className="text-sm text-gray-500">Senin - Sabtu: 08:00 - 21:00 WIB</p>
+                <p className="text-sm text-gray-400">Minggu: 09:00 - 17:00 WIB</p>
               </div>
             </div>
             <div className="flex items-start gap-4 bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow">
@@ -312,7 +312,7 @@ export default function Home({ banners, categories, featured_products, latest_pr
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Telepon / WhatsApp</h3>
-                <p className="text-sm text-gray-500">081234567890</p>
+                <p className="text-sm text-gray-500">0888-2869-727</p>
               </div>
             </div>
           </div>

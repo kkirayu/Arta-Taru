@@ -70,17 +70,43 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request)
     {
-        $product = Product::create($request->validated());
+        $data = $request->validated();
+
+        // Auto-generate slug if not provided
+        if (empty($data['slug'])) {
+            $data['slug'] = $this->generateUniqueSlug($data['name']);
+        }
+
+        // Set published_at if is_active and not set
+        if (!empty($data['is_active']) && empty($data['published_at'])) {
+            $data['published_at'] = now();
+        }
+
+        $product = Product::create($data);
 
         if ($specifications = $request->input('specifications')) {
             foreach ($specifications as $spec) {
-                $product->specifications()->create($spec);
+                if (!empty($spec['key']) && !empty($spec['value'])) {
+                    $product->specifications()->create($spec);
+                }
             }
         }
 
         ActivityLog::log('product_created', $product, null, $product->toArray());
 
-        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dibuat.');
+        return redirect()->route('admin.products.show', $product->id)
+            ->with('success', 'Produk berhasil dibuat. Silakan tambahkan gambar produk.');
+    }
+
+    private function generateUniqueSlug(string $name): string
+    {
+        $slug = Str::slug($name);
+        $original = $slug;
+        $count = 1;
+        while (Product::withTrashed()->where('slug', $slug)->exists()) {
+            $slug = $original . '-' . $count++;
+        }
+        return $slug;
     }
 
     public function show($id)
@@ -112,12 +138,26 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $old = $product->toArray();
 
-        $product->update($request->validated());
+        $data = $request->validated();
+
+        // Update slug if name changed and slug is empty
+        if (empty($data['slug']) && $product->name !== $data['name']) {
+            $data['slug'] = $this->generateUniqueSlug($data['name']);
+        }
+
+        // Handle published_at
+        if (!empty($data['is_active']) && empty($data['published_at'])) {
+            $data['published_at'] = $product->published_at ?? now();
+        }
+
+        $product->update($data);
 
         if ($request->has('specifications')) {
             $product->specifications()->delete();
             foreach ($request->input('specifications', []) as $spec) {
-                $product->specifications()->create($spec);
+                if (!empty($spec['key']) && !empty($spec['value'])) {
+                    $product->specifications()->create($spec);
+                }
             }
         }
 

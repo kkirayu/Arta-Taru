@@ -15,14 +15,9 @@ export default function BrandCreate({ errors }: BrandFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('name', data.name);
-    formData.append('slug', data.slug);
-    if (data.logo) formData.append('logo', data.logo);
-    formData.append('description', data.description);
-    formData.append('website', data.website);
-    formData.append('is_active', data.is_active ? '1' : '0');
-    post('/admin/brands');
+    post('/admin/brands', {
+      forceFormData: true,
+    });
   };
 
   const fieldError = (name: string) =>

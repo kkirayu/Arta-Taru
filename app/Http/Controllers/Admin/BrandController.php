@@ -32,8 +32,8 @@ class BrandController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:brands,slug',
-            'logo' => 'nullable|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:brands,slug',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'description' => 'nullable|string',
             'website' => 'nullable|url|max:255',
             'is_active' => 'boolean',
@@ -41,6 +41,12 @@ class BrandController extends Controller
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $request->file('logo')->store('brands', 'public');
+        } else {
+            unset($validated['logo']);
         }
 
         $brand = Brand::create($validated);
@@ -77,14 +83,25 @@ class BrandController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:brands,slug,' . $id,
-            'logo' => 'nullable|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:brands,slug,' . $id,
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'description' => 'nullable|string',
             'website' => 'nullable|url|max:255',
             'is_active' => 'boolean',
         ]);
 
         $old = $brand->toArray();
+
+        if (empty($validated['slug'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $request->file('logo')->store('brands', 'public');
+        } else {
+            unset($validated['logo']);
+        }
+
         $brand->update($validated);
 
         ActivityLog::log('brand_updated', $brand, $old, $brand->toArray());

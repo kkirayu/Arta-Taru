@@ -70,10 +70,10 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-9">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <Phone className="w-3 h-3" /> 081234567890
+              <Phone className="w-3 h-3" /> 0888-2869-727
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-3 h-3" /> Senin - Sabtu, 08:00 - 17:00
+              <Clock className="w-3 h-3" /> Senin - Sabtu, 08:00 - 21:00 WIB
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 Hubungi WhatsApp
               </Link>
               <div className="flex items-center gap-1.5 text-xs text-gray-500 justify-center">
-                <Phone className="w-3 h-3" /> 081234567890
+                <Phone className="w-3 h-3" /> 0888-2869-727
               </div>
             </div>
           </div>
@@ -310,15 +310,15 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
-                  <span>Jl. Raya Utama No. 123, Bandung, Jawa Barat</span>
+                  <span>Jl. Malioboro No. 45, Yogyakarta, DI Yogyakarta</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <span>081234567890</span>
+                  <span>0888-2869-727</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <span>Senin - Sabtu: 08:00 - 17:00</span>
+                  <span>Senin - Sabtu: 08:00 - 21:00 WIB</span>
                 </li>
               </ul>
             </div>
