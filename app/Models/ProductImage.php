@@ -17,6 +17,21 @@ class ProductImage extends Model
         'is_primary' => 'boolean',
     ];
 
+    protected $appends = ['url'];
+
+    public function getUrlAttribute(): string
+    {
+        if (empty($this->path)) {
+            return '';
+        }
+
+        if (str_starts_with($this->path, 'http')) {
+            return $this->path;
+        }
+
+        return '/storage/' . ltrim($this->path, '/');
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class);

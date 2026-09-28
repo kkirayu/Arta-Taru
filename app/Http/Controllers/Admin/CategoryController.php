@@ -14,10 +14,16 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::withoutTrashed()
-            ->withCount('children')
-            ->roots()
+            ->with('parent')
+            ->orderBy('sort_order')
             ->paginate(15)
             ->withQueryString();
+
+        // Add products_count including children
+        $categories->getCollection()->transform(function ($cat) {
+            $cat->products_count = $cat->allProducts()->count();
+            return $cat;
+        });
 
         return Inertia::render('Admin/Categories/Index', [
             'categories' => $categories,
@@ -59,9 +65,12 @@ class CategoryController extends Controller
     public function show($id)
     {
         $category = Category::withoutTrashed()
-            ->withCount('products')
-            ->with('children')
+            ->with(['parent', 'children' => function ($q) {
+                $q->withCount('products');
+            }])
             ->findOrFail($id);
+
+        $category->products_count = $category->allProducts()->count();
 
         return Inertia::render('Admin/Categories/Show', [
             'category' => $category,

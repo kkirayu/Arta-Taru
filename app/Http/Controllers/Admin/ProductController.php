@@ -163,7 +163,7 @@ class ProductController extends Controller
 
         ActivityLog::log('product_updated', $product, $old, $product->toArray());
 
-        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
+        return redirect()->route('admin.products.show', $product->id)->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy($id)
@@ -198,7 +198,7 @@ class ProductController extends Controller
 
         ActivityLog::log('product_toggled_publish', $product, $old, $product->toArray());
 
-        return back()->with('success', 'Status publikasi diperbarui.');
+        return redirect()->route('admin.products.index')->with('success', 'Status publikasi diperbarui.');
     }
 
     public function toggleFeatured($id)
@@ -211,7 +211,7 @@ class ProductController extends Controller
 
         ActivityLog::log('product_toggled_featured', $product, $old, $product->toArray());
 
-        return back()->with('success', 'Status featured diperbarui.');
+        return redirect()->route('admin.products.index')->with('success', 'Status featured diperbarui.');
     }
 
     public function duplicate($id)
@@ -219,6 +219,7 @@ class ProductController extends Controller
         $original = Product::findOrFail($id);
         $clone = $original->replicate();
         $clone->name = $original->name . ' (Copy)';
+        $clone->slug = $this->generateUniqueSlug($clone->name);
         $clone->sku = $original->sku . '-copy-' . Str::random(5);
         $clone->is_active = false;
         $clone->published_at = null;

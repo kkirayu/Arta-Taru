@@ -54,6 +54,6 @@ class InventoryController extends Controller
 
         ActivityLog::log('stock_updated', $product, $old, $product->toArray());
 
-        return back()->with('success', 'Stok berhasil diperbarui.');
+        return redirect()->route('admin.inventory.index')->with('success', 'Stok berhasil diperbarui.');
     }
 }

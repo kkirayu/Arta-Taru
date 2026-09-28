@@ -53,7 +53,7 @@ export default function ProductsIndex({ products, categories, brands, filters }:
   };
 
   const handleTogglePublish = (product: Product) => {
-    router.patch(`/admin/products/${product.id}/toggle-publish`);
+    router.post(`/admin/products/${product.id}/toggle-publish`);
   };
 
   const handlePageChange = (page: number) => {
@@ -121,7 +121,7 @@ export default function ProductsIndex({ products, categories, brands, filters }:
           </div>
 
           {products.data.length > 0 ? (
-            <div className="overflow-x-auto">
+            <div className="min-w-full">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200">
@@ -140,8 +140,8 @@ export default function ProductsIndex({ products, categories, brands, filters }:
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                            {product.primary_image?.path ? (
-                              <img src={product.primary_image.path} alt="" className="w-full h-full object-cover" />
+                            {product.primary_image?.url ? (
+                              <img src={product.primary_image.url} alt="" className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <Package className="w-4 h-4 text-gray-400" />

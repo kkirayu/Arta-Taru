@@ -14,17 +14,12 @@ function formatPrice(amount: number): string {
   }).format(amount);
 }
 
-interface ImageItem extends ProductImage {
-  url?: string;
-}
+interface ImageItem extends ProductImage {}
 
 export default function ProductShow({ product }: ProductShowProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [images, setImages] = useState<ImageItem[]>(
-    (product.images || []).map((img) => ({
-      ...img,
-      url: img.path?.startsWith('http') ? img.path : `/storage/${img.path}`,
-    }))
+    (product.images || []).map((img) => ({ ...img }))
   );
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -80,10 +75,7 @@ export default function ProductShow({ product }: ProductShowProps) {
         }
 
         const data = await res.json();
-        const newImage: ImageItem = {
-          ...data,
-          url: data.path?.startsWith('http') ? data.path : `/storage/${data.path}`,
-        };
+        const newImage: ImageItem = { ...data };
         setImages((prev) => [...prev, newImage]);
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : 'Upload gagal.');

@@ -31,6 +31,6 @@ class SettingController extends Controller
 
         ActivityLog::log('settings_updated', null, null, $request->input('settings'));
 
-        return back()->with('success', 'Pengaturan berhasil diperbarui.');
+        return redirect()->route('admin.settings.index')->with('success', 'Pengaturan berhasil diperbarui.');
     }
 }

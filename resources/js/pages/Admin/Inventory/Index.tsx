@@ -76,8 +76,8 @@ export default function InventoryIndex({ products }: InventoryProps) {
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                              {product.primary_image?.path ? (
-                                <img src={product.primary_image.path} alt="" className="w-full h-full object-cover" />
+                              {product.primary_image?.url ? (
+                                <img src={product.primary_image.url} alt="" className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
                                   <Package className="w-4 h-4 text-gray-400" />

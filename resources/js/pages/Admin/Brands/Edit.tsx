@@ -4,7 +4,7 @@ import AdminLayout from '@/layouts/AdminLayout';
 import type { BrandFormProps } from '@/types';
 
 export default function BrandEdit({ brand, errors }: BrandFormProps) {
-  const { data, setData, put, processing } = useForm({
+  const { data, setData, post, processing } = useForm({
     name: brand?.name || '',
     slug: brand?.slug || '',
     logo: null as File | null,
@@ -16,7 +16,10 @@ export default function BrandEdit({ brand, errors }: BrandFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (brand) {
-      put(`/admin/brands/${brand.id}`);
+      post(`/admin/brands/${brand.id}`, {
+        forceFormData: true,
+        _method: 'put',
+      });
     }
   };
 
@@ -56,7 +59,7 @@ export default function BrandEdit({ brand, errors }: BrandFormProps) {
                 <input type="file" accept="image/*" onChange={(e) => setData('logo', e.target.files?.[0] || null)} className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm" />
                 {brand.logo && (
                   <div className="mt-2">
-                    <img src={brand.logo} alt={brand.name} className="w-16 h-16 rounded-lg object-cover" />
+                    <img src={brand.logo.startsWith('http') ? brand.logo : `/storage/${brand.logo}`} alt={brand.name} className="w-16 h-16 rounded-lg object-cover border" />
                   </div>
                 )}
                 {fieldError('logo')}

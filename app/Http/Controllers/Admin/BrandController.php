@@ -130,6 +130,6 @@ class BrandController extends Controller
 
         ActivityLog::log('brand_toggled_active', $brand, $old, $brand->toArray());
 
-        return back()->with('success', 'Status brand diperbarui.');
+        return redirect()->route('admin.brands.index')->with('success', 'Status brand diperbarui.');
     }
 }

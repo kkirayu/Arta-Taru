@@ -61,7 +61,7 @@ export default function BannersIndex({ banners }: BannerIndexProps) {
                         <div className="flex items-center gap-3">
                           <div className="w-16 h-10 rounded bg-gray-100 overflow-hidden flex-shrink-0">
                             {banner.desktop_image ? (
-                              <img src={banner.desktop_image} alt={banner.title} className="w-full h-full object-cover" />
+                              <img src={banner.desktop_image.startsWith('http') ? banner.desktop_image : `/storage/${banner.desktop_image}`} alt={banner.title} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <Image className="w-4 h-4 text-gray-400" />

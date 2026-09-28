@@ -68,7 +68,7 @@ export default function BrandsIndex({ brands }: BrandIndexProps) {
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
                             {brand.logo ? (
-                              <img src={brand.logo} alt={brand.name} className="w-full h-full object-cover" />
+                              <img src={brand.logo.startsWith('http') ? brand.logo : `/storage/${brand.logo}`} alt={brand.name} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <Tag className="w-4 h-4 text-gray-400" />

@@ -75,6 +75,7 @@ export interface ProductImage {
   id: number;
   product_id: number;
   path: string;
+  url?: string;
   alt_text: string | null;
   is_primary: boolean;
   sort_order: number;

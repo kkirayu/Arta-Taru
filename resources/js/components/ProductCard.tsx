@@ -27,7 +27,7 @@ function getStockInfo(product: Product): { text: string; className: string; dot:
 
 export default function ProductCard({ product }: ProductCardProps) {
   const stock = getStockInfo(product);
-  const imageUrl = product.primary_image?.path;
+  const imageUrl = product.primary_image?.url;
   const price = product.effective_price ?? product.sale_price ?? product.price;
   const hasSale = product.sale_price !== null && product.sale_price < product.price;
   const discount = hasSale

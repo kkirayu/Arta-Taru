@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import {
   ChevronRight,
   Package,
@@ -42,7 +42,12 @@ export default function ProductShow({ product, related_products, whatsapp_number
   }, []);
 
   useEffect(() => {
-    router.post('/api/v1/analytics/events', { event_name: 'product_view', product_id: product.id, session_id: '' }, { preserveState: true, preserveScroll: true });
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    fetch('/api/v1/analytics/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ event_name: 'product_view', product_id: product.id }),
+    }).catch(() => {});
   }, [product.id]);
 
   const images = product.images || [];
@@ -69,7 +74,11 @@ export default function ProductShow({ product, related_products, whatsapp_number
       ? `https://wa.me/${phone}?text=${message}`
       : `https://wa.me/?text=${message}`;
     window.open(url, '_blank');
-    router.post('/api/v1/analytics/events', { event_name: 'whatsapp_click', product_id: product.id, session_id: '' }, { preserveState: true, preserveScroll: true });
+    fetch('/api/v1/analytics/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' },
+      body: JSON.stringify({ event_name: 'whatsapp_click', product_id: product.id }),
+    }).catch(() => {});
   };
 
   const handleShare = () => {
@@ -104,7 +113,7 @@ export default function ProductShow({ product, related_products, whatsapp_number
     name: product.name,
     description: product.short_description || product.description,
     sku: product.sku,
-    image: activeImage?.path,
+    image: activeImage?.url,
     brand: product.brand ? { '@type': 'Brand', name: product.brand.name } : undefined,
     offers: {
       '@type': 'Offer',
@@ -165,7 +174,7 @@ export default function ProductShow({ product, related_products, whatsapp_number
             <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl overflow-hidden group">
               {activeImage ? (
                 <img
-                  src={activeImage.path}
+                  src={activeImage.url}
                   alt={activeImage.alt_text || product.name}
                   className="w-full h-full object-cover"
                 />
@@ -214,7 +223,7 @@ export default function ProductShow({ product, related_products, whatsapp_number
                       activeImage?.id === img.id ? 'border-blue-500 shadow-sm scale-105' : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <img src={img.path} alt={img.alt_text || ''} className="w-full h-full object-cover" />
+                    <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

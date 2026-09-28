@@ -18,14 +18,8 @@ class AnalyticsController extends Controller
             'metadata' => 'nullable|array',
         ]);
 
-        $event = AnalyticsEvent::create([
-            'event_name' => $validated['event_name'],
-            'product_id' => $validated['product_id'] ?? null,
-            'category_id' => $validated['category_id'] ?? null,
-            'session_id' => $validated['session_id'] ?? session()->getId(),
-            'metadata' => $validated['metadata'] ?? null,
-        ]);
+        $event = AnalyticsEvent::create($validated);
 
-        return response()->json($event, 201);
+        return response()->json(['ok' => true]);
     }
 }
