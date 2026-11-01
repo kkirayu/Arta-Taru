@@ -10,9 +10,50 @@ jobs:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # TiDB Cloud credentials (set in GitHub Secrets)
+      DB_CONNECTION: mysql
+      DB_HOST: ${{ secrets.TIDB_HOST }}
+      DB_PORT: ${{ secrets.TIDB_PORT }}
+      DB_DATABASE: ${{ secrets.TIDB_DATABASE }}
+      DB_USERNAME: ${{ secrets.TIDB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.TIDB_PASSWORD }}
+      MYSQL_ATTR_SSL_CA: /etc/ssl/certs/ca-certificates.crt
+      DB_SSL_MODE: VERIFY_IDENTITY
+      APP_ENV: production
+      APP_DEBUG: false
+      CACHE_STORE: database
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: sync
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, gd, intl, zip, bcmath
+          ini-values: memory_limit=512M
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+      - name: Run database migrations
+        run: |
+          php artisan migrate --force --no-interaction
+          php artisan db:seed --force --no-interaction || true
+        env:
+          APP_KEY: ${{ secrets.APP_KEY }}
+
+      - name: Install Node & build frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
 
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
