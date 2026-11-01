@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BrandFormProps } from '@/types';
@@ -16,10 +16,7 @@ export default function BrandEdit({ brand, errors }: BrandFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (brand) {
-      post(`/admin/brands/${brand.id}`, {
-        forceFormData: true,
-        _method: 'put',
-      });
+      router.put(`/admin/brands/${brand.id}`, data, { forceFormData: true });
     }
   };
 

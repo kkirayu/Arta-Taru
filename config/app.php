@@ -65,7 +65,19 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cron Secret
+    |--------------------------------------------------------------------------
+    |
+    | Vercel Hobby can only schedule one cron per day, so order lifecycle jobs
+    | are triggered by an external scheduler hitting /api/cron/tick.
+    |
+    */
+
+    'cron_secret' => env('CRON_SECRET', ''),
 
     /*
     |--------------------------------------------------------------------------

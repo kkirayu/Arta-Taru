@@ -1,4 +1,5 @@
 import './bootstrap';
+// @ts-ignore
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
@@ -13,8 +14,9 @@ createInertiaApp({
         resolvePageComponent(
             `./pages/${name}.tsx`,
             import.meta.glob('./pages/**/*.tsx')
-        ),
+        ) as Promise<React.ComponentType<any>>,
     setup({ el, App, props }) {
+        if (!el) return;
         const root = createRoot(el);
         root.render(<App {...props} />);
     },

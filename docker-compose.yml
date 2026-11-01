@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    container_name: artataru_app
+    ports:
+      - "8000:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=arta_taru
+      - DB_USERNAME=arta
+      - DB_PASSWORD=secret
+      - SESSION_DRIVER=database
+      - CACHE_STORE=database
+      - QUEUE_CONNECTION=database
+      - FILESYSTEM_DISK=local
+      - PRODUCT_DISK=local
+      - PROOF_DISK=local
+      - RUN_MIGRATIONS=true
+    volumes:
+      - .:/app
+      - /app/vendor
+      - /app/node_modules
+      - /app/public/build
+    depends_on:
+      - mariadb
+    command: >
+      sh -c "composer install --no-interaction &&
+             php artisan migrate --force --seed &&
+             php artisan storage:link &&
+             npm run dev"
+
+  mariadb:
+    image: mariadb:11.8
+    container_name: artataru_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootsecret
+      - MYSQL_DATABASE=arta_taru
+      - MYSQL_USER=arta
+      - MYSQL_PASSWORD=secret
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: artataru_mail
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  mariadb_data:

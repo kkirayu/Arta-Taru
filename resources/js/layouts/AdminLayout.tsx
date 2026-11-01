@@ -15,6 +15,13 @@ import {
   X,
   ChevronDown,
   ChevronRight,
+  ShoppingCart,
+  CreditCard,
+  Users,
+  Truck,
+  Star,
+  UserCog,
+  Bell,
 } from 'lucide-react';
 import FlashMessage from '@/components/FlashMessage';
 import type { PageProps, User } from '@/types';
@@ -33,6 +40,23 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   {
+    label: 'Penjualan',
+    icon: ShoppingCart,
+    children: [
+      { label: 'Pesanan', href: '/admin/orders' },
+      { label: 'Pembayaran', href: '/admin/payments' },
+      { label: 'Laporan', href: '/admin/reports' },
+    ],
+  },
+  {
+    label: 'Pelanggan',
+    icon: Users,
+    children: [
+      { label: 'Daftar Pelanggan', href: '/admin/customers' },
+      { label: 'Ulasan', href: '/admin/reviews' },
+    ],
+  },
+  {
     label: 'Katalog',
     icon: Package,
     children: [
@@ -41,6 +65,11 @@ const sidebarItems: SidebarItem[] = [
       { label: 'Brand', href: '/admin/brands' },
       { label: 'Inventaris', href: '/admin/inventory' },
     ],
+  },
+  {
+    label: 'Pengiriman',
+    icon: Truck,
+    children: [{ label: 'Tarif Ongkir', href: '/admin/shipping-rates' }],
   },
   {
     label: 'Konten',
@@ -56,6 +85,7 @@ const sidebarItems: SidebarItem[] = [
     label: 'Sistem',
     icon: Settings,
     children: [
+      { label: 'Pengguna', href: '/admin/users' },
       { label: 'Activity Logs', href: '/admin/activity-logs' },
       { label: 'Settings', href: '/admin/settings' },
     ],
@@ -189,6 +219,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="hidden lg:block" />
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/admin/payments"
+              className="relative p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+              aria-label="Pembayaran menunggu verifikasi"
+            >
+              <Bell className="w-5 h-5" />
+              {(props.unread_notifications ?? 0) > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {props.unread_notifications}
+                </span>
+              )}
+            </Link>
             <span className="text-sm text-gray-600 hidden sm:block">{user?.name}</span>
             <button
               onClick={handleLogout}

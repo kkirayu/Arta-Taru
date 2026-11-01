@@ -16,9 +16,8 @@
         "noUnusedParameters": false,
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
-        "baseUrl": ".",
         "paths": {
-            "@/*": ["resources/js/*"]
+            "@/*": ["./resources/js/*"]
         }
     },
     "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"],

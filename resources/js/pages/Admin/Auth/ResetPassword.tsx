@@ -1,19 +1,20 @@
-import { Head, useForm } from '@inertiajs/react';
-import { Lock, Mail, Package, Eye, EyeOff } from 'lucide-react';
+import { Head, useForm, Link } from '@inertiajs/react';
+import { Lock, Mail, Package, Eye, EyeOff, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
-import type { LoginProps } from '@/types';
+import type { ResetPasswordProps } from '@/types';
 
-export default function Login({ errors }: LoginProps) {
+export default function ResetPassword({ errors, token, email }: ResetPasswordProps) {
   const { data, setData, post, processing } = useForm({
-    email: '',
+    token,
+    email,
     password: '',
-    remember: false,
+    password_confirmation: '',
   });
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post('/admin/login');
+    post('/admin/reset-password');
   };
 
   return (
@@ -26,11 +27,14 @@ export default function Login({ errors }: LoginProps) {
             <Package className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">Toko Arta Taru</h1>
-          <p className="text-blue-200 text-sm mt-1">Masuk ke panel admin</p>
+          <p className="text-blue-200 text-sm mt-1">Atur password baru Anda</p>
         </div>
 
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20">
           <form onSubmit={handleSubmit} className="space-y-5">
+            <input type="hidden" name="token" value={token ?? ''} />
+            <input type="hidden" name="email" value={email ?? ''} />
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
               <div className="relative">
@@ -38,18 +42,15 @@ export default function Login({ errors }: LoginProps) {
                 <input
                   id="email"
                   type="email"
-                  value={data.email}
-                  onChange={(e) => setData('email', e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                  placeholder="admin@artataru.com"
-                  autoComplete="username"
+                  value={email ?? ''}
+                  disabled
+                  className="w-full pl-11 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm text-gray-500 cursor-not-allowed"
                 />
               </div>
-              {errors.email && <p className="mt-1.5 text-sm text-red-600">{errors.email}</p>}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">Password Baru</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -58,7 +59,7 @@ export default function Login({ errors }: LoginProps) {
                   value={data.password}
                   onChange={(e) => setData('password', e.target.value)}
                   className="w-full pl-11 pr-11 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
@@ -71,17 +72,28 @@ export default function Login({ errors }: LoginProps) {
               {errors.password && <p className="mt-1.5 text-sm text-red-600">{errors.password}</p>}
             </div>
 
-            <div className="flex items-center">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div>
+              <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-1.5">Konfirmasi Password Baru</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
-                  type="checkbox"
-                  checked={data.remember}
-                  onChange={(e) => setData('remember', e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  id="password_confirmation"
+                  type={showPassword ? 'text' : 'password'}
+                  value={data.password_confirmation}
+                  onChange={(e) => setData('password_confirmation', e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                  autoComplete="new-password"
                 />
-                <span className="text-sm text-gray-600">Ingat saya</span>
-              </label>
+              </div>
+              {errors.password_confirmation && <p className="mt-1.5 text-sm text-red-600">{errors.password_confirmation}</p>}
             </div>
+
+            {errors.general && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <p className="text-sm text-red-700">{errors.general}</p>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -96,9 +108,16 @@ export default function Login({ errors }: LoginProps) {
                   </svg>
                   Memproses...
                 </span>
-              ) : 'Masuk'}
+              ) : 'Reset Password'}
             </button>
           </form>
+
+          <p className="text-center text-sm text-gray-600 mt-6">
+            <Link href="/admin/login" className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 justify-center">
+              <ArrowLeft className="w-4 h-4" />
+              Kembali ke Login
+            </Link>
+          </p>
         </div>
 
         <p className="text-center text-blue-200/60 text-xs mt-6">Dilindungi keamanan enkripsi</p>

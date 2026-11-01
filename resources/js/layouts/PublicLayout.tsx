@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
-import { Menu, X, Heart, Search, ChevronRight, Phone, MapPin, Clock, MessageCircle, Camera, Globe, Video, ShoppingBag, Package } from 'lucide-react';
+import {
+  Menu, X, Heart, Search, ChevronRight, Phone, MapPin, Clock, MessageCircle,
+  Camera, Globe, Video, ShoppingBag, Package, User as UserIcon, LogOut, ChevronDown,
+  Truck, HelpCircle,
+} from 'lucide-react';
 import FlashMessage from '@/components/FlashMessage';
 import type { PageProps } from '@/types';
 
@@ -25,23 +29,17 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [scrolled, setScrolled] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const { url, props } = usePage<PageProps>();
-  const wishlistCount = (() => {
-    if (typeof window === 'undefined') return 0;
-    try {
-      const stored = localStorage.getItem('wishlist');
-      return stored ? JSON.parse(stored).length : 0;
-    } catch { return 0; }
-  })();
-  const [wishlistNum, setWishlistNum] = useState(0);
-
-  useEffect(() => {
-    setWishlistNum(wishlistCount);
-  }, [url]);
+  const customer = props.auth?.customer ?? null;
+  const cartCount = props.cart_count ?? 0;
+  const wishlistCount = props.wishlist_count ?? 0;
+  const store = props.store;
 
   useEffect(() => {
     setMobileOpen(false);
     setSearchOpen(false);
+    setAccountOpen(false);
   }, [url]);
 
   useEffect(() => {
@@ -58,10 +56,20 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
     setSearchOpen(false);
   };
 
+  const handleLogout = () => {
+    router.post('/keluar');
+  };
+
   const isActive = (href: string) => {
     if (href === '/') return url === '/';
     return url.startsWith(href);
   };
+
+  const storeName = store?.name || 'Toko Arta Taru';
+  const storePhone = store?.phone || '0888-2869-727';
+  const storeHours = store?.hours || 'Senin - Sabtu, 08:00 - 21:00 WIB';
+  const storeAddress = store?.address || 'Jl. Malioboro No. 45, Yogyakarta';
+  const whatsapp = store?.whatsapp_number || '628882869727';
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -70,18 +78,18 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-9">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <Phone className="w-3 h-3" /> 0888-2869-727
+              <Phone className="w-3 h-3" /> {storePhone}
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-3 h-3" /> Senin - Sabtu, 08:00 - 21:00 WIB
+              <Clock className="w-3 h-3" /> {storeHours}
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <a href="#" className="flex items-center gap-1 hover:text-white transition-colors">
-              <Camera className="w-3 h-3" /> Instagram
-            </a>
-            <a href="#" className="flex items-center gap-1 hover:text-white transition-colors">
-              <Globe className="w-3 h-3" /> Facebook
+            <Link href="/lacak-pesanan" className="flex items-center gap-1 hover:text-white transition-colors">
+              <Truck className="w-3 h-3" /> Lacak Pesanan
+            </Link>
+            <a href={`https://wa.me/${whatsapp}`} className="flex items-center gap-1 hover:text-white transition-colors">
+              <MessageCircle className="w-3 h-3" /> WhatsApp
             </a>
           </div>
         </div>
@@ -97,8 +105,8 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 <Package className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="text-lg font-bold text-gray-900 block leading-none tracking-tight">Arta Taru</span>
-                <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Katalog Peralatan</span>
+                <span className="text-lg font-bold text-gray-900 block leading-none tracking-tight">{storeName}</span>
+                <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Peralatan & Perlengkapan</span>
               </div>
             </Link>
 
@@ -128,25 +136,93 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
               >
                 <Search className="w-5 h-5" />
               </button>
+
               <Link
                 href="/wishlist"
                 className="relative p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
                 aria-label="Wishlist"
               >
                 <Heart className="w-5 h-5" />
-                {wishlistNum > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {wishlistNum}
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {wishlistCount}
                   </span>
                 )}
               </Link>
+
               <Link
-                href="/kontak"
-                className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+                href="/keranjang"
+                className="relative p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                aria-label="Keranjang"
               >
-                <MessageCircle className="w-4 h-4" />
-                WhatsApp
+                <ShoppingBag className="w-5 h-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
+
+              {/* Account */}
+              <div className="relative">
+                <button
+                  onClick={() => setAccountOpen((v) => !v)}
+                  className="hidden sm:flex items-center gap-1.5 p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                  aria-label="Akun"
+                >
+                  <UserIcon className="w-5 h-5" />
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+
+                {accountOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                    {customer ? (
+                      <>
+                        <div className="px-4 py-2 border-b border-gray-100">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{customer.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{customer.email}</p>
+                        </div>
+                        <Link href="/akun" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                          <UserIcon className="w-4 h-4" /> Akun Saya
+                        </Link>
+                        <Link href="/akun/pesanan" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                          <Package className="w-4 h-4" /> Pesanan Saya
+                        </Link>
+                        <Link href="/wishlist" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                          <Heart className="w-4 h-4" /> Wishlist
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+                        >
+                          <LogOut className="w-4 h-4" /> Keluar
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link href="/masuk" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                          Masuk
+                        </Link>
+                        <Link href="/daftar" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                          Daftar Akun
+                        </Link>
+                        <Link href="/lacak-pesanan" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100 mt-1">
+                          <Truck className="w-4 h-4" /> Lacak Pesanan
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <Link
+                href="/keranjang"
+                className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Keranjang
+              </Link>
+
               <button
                 onClick={() => setMobileOpen(true)}
                 className="lg:hidden p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
@@ -159,7 +235,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
           {/* Search bar expand */}
           {searchOpen && (
-            <div className="pb-4 animate-[fadeIn_0.2s_ease-out]">
+            <div className="pb-4">
               <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -212,32 +288,60 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </Link>
               ))}
-              <Link
-                href="/wishlist"
-                className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
+              <Link href="/keranjang" className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">
                 <span className="flex items-center gap-2">
-                  <Heart className="w-4 h-4" />
-                  Wishlist
-                  {wishlistNum > 0 && (
-                    <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
-                      {wishlistNum}
-                    </span>
+                  <ShoppingBag className="w-4 h-4" /> Keranjang
+                  {cartCount > 0 && (
+                    <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded-full">{cartCount}</span>
                   )}
                 </span>
                 <ChevronRight className="w-4 h-4 text-gray-400" />
               </Link>
+              <Link href="/wishlist" className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <span className="flex items-center gap-2">
+                  <Heart className="w-4 h-4" /> Wishlist
+                  {wishlistCount > 0 && (
+                    <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">{wishlistCount}</span>
+                  )}
+                </span>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </Link>
+              <Link href="/lacak-pesanan" className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <span className="flex items-center gap-2"><Truck className="w-4 h-4" /> Lacak Pesanan</span>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </Link>
+              <Link href="/faq" className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <span className="flex items-center gap-2"><HelpCircle className="w-4 h-4" /> FAQ</span>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </Link>
+              <div className="border-t border-gray-100 mt-2 pt-2">
+                {customer ? (
+                  <>
+                    <Link href="/akun" className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">
+                      <span className="flex items-center gap-2"><UserIcon className="w-4 h-4" /> Akun Saya</span>
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                    </Link>
+                    <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50">
+                      <LogOut className="w-4 h-4" /> Keluar
+                    </button>
+                  </>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 px-2 py-2">
+                    <Link href="/masuk" className="text-center px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700">Masuk</Link>
+                    <Link href="/daftar" className="text-center px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium">Daftar</Link>
+                  </div>
+                )}
+              </div>
             </nav>
             <div className="p-5 border-t border-gray-100 space-y-3">
-              <Link
-                href="/kontak"
+              <a
+                href={`https://wa.me/${whatsapp}`}
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition-colors"
               >
-                <MessageCircle className="w-4 h-4" />
-                Hubungi WhatsApp
-              </Link>
+                <MessageCircle className="w-4 h-4" /> Hubungi WhatsApp
+              </a>
               <div className="flex items-center gap-1.5 text-xs text-gray-500 justify-center">
-                <Phone className="w-3 h-3" /> 0888-2869-727
+                <Phone className="w-3 h-3" /> {storePhone}
               </div>
             </div>
           </div>
@@ -258,18 +362,18 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                   <Package className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <span className="text-lg font-bold text-white block leading-none">Arta Taru</span>
-                  <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Katalog Peralatan</span>
+                  <span className="text-lg font-bold text-white block leading-none">{storeName}</span>
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Peralatan & Perlengkapan</span>
                 </div>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed mb-5">
                 Toko peralatan dan perlengkapan lengkap. Melayani kebutuhan rumah tangga, pertukangan, komunikasi, dan industri.
               </p>
               <div className="flex items-center gap-2">
-                <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition-colors" aria-label="Instagram">
+                <a href={store?.instagram_url || '#'} className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition-colors" aria-label="Instagram">
                   <Camera className="w-4 h-4" />
                 </a>
-                <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition-colors" aria-label="Facebook">
+                <a href={store?.facebook_url || '#'} className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition-colors" aria-label="Facebook">
                   <Globe className="w-4 h-4" />
                 </a>
                 <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center transition-colors" aria-label="YouTube">
@@ -289,20 +393,21 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                   </li>
                 ))}
                 <li>
-                  <Link href="/wishlist" className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                  <Link href="/lacak-pesanan" className="hover:text-white transition-colors flex items-center gap-1.5 group">
                     <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-white transition-colors" />
-                    Wishlist
+                    Lacak Pesanan
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-white font-semibold mb-4 text-sm">Kategori</h3>
+              <h3 className="text-white font-semibold mb-4 text-sm">Informasi</h3>
               <ul className="space-y-2.5 text-sm">
-                <li><Link href="/kategori/pakaian" className="hover:text-white transition-colors">Pakaian</Link></li>
-                <li><Link href="/kategori/alat-komunikasi" className="hover:text-white transition-colors">Alat Komunikasi</Link></li>
-                <li><Link href="/kategori/alat-otomotif" className="hover:text-white transition-colors">Alat Otomotif</Link></li>
-                <li><Link href="/kategori/peralatan-teknikal" className="hover:text-white transition-colors">Peralatan Teknikal</Link></li>
+                <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="/syarat-ketentuan" className="hover:text-white transition-colors">Syarat & Ketentuan</Link></li>
+                <li><Link href="/kebijakan-privasi" className="hover:text-white transition-colors">Kebijakan Privasi</Link></li>
+                <li><Link href="/pengembalian" className="hover:text-white transition-colors">Pengembalian</Link></li>
+                <li><Link href="/akun/pesanan" className="hover:text-white transition-colors">Pesanan Saya</Link></li>
               </ul>
             </div>
             <div>
@@ -310,15 +415,15 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
-                  <span>Jl. Malioboro No. 45, Yogyakarta, DI Yogyakarta</span>
+                  <span>{storeAddress}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <span>0888-2869-727</span>
+                  <span>{storePhone}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <span>Senin - Sabtu: 08:00 - 21:00 WIB</span>
+                  <span>{storeHours}</span>
                 </li>
               </ul>
             </div>
@@ -326,9 +431,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
         </div>
         <div className="border-t border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
-            <span>&copy; {new Date().getFullYear()} Toko Arta Taru. Hak cipta dilindungi.</span>
+            <span>&copy; {new Date().getFullYear()} {storeName}. Hak cipta dilindungi.</span>
             <div className="flex items-center gap-4">
-              <span>Dibuat dengan dedikasi</span>
+              <span>Pembayaran transfer bank · Pengiriman seluruh Indonesia</span>
             </div>
           </div>
         </div>

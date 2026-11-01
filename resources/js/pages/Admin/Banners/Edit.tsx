@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { ArrowLeft, Image, Save } from 'lucide-react';
 import AdminLayout from '@/layouts/AdminLayout';
 
@@ -17,7 +17,7 @@ export default function BannerEdit({ banner }: { banner: any }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (banner) {
-      post(`/admin/banners/${banner.id}`, { forceFormData: true, _method: 'put' });
+      router.put(`/admin/banners/${banner.id}`, data, { forceFormData: true });
     }
   };
 

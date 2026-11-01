@@ -1,0 +1,46 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "docker",
+  "buildCommand": "docker build -t artataru .",
+  "devCommand": "docker compose up",
+  "installCommand": "composer install --no-interaction && npm ci",
+  "regions": ["sin1"],
+  "functions": {
+    "app/**/*.php": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/tick",
+      "schedule": "0 2 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/build/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/storage/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.php"
+    }
+  ]
+}

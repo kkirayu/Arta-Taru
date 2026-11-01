@@ -10,13 +10,24 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        User::firstOrCreate(
-            ['email' => 'admin@artataru.com'],
+        $email = env('ADMIN_EMAIL', 'admin@artataru.com');
+        $password = env('ADMIN_PASSWORD', 'password');
+
+        $admin = User::firstOrCreate(
+            ['email' => $email],
             [
-                'name' => 'Admin',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
+                'name' => env('ADMIN_NAME', 'Admin Toko'),
+                'password' => Hash::make($password),
+                'role' => 'super_admin',
+                'is_active' => true,
             ]
         );
+
+        // Ensure the seeded account can actually log in on an existing install.
+        $admin->forceFill([
+            'role' => 'super_admin',
+            'is_active' => true,
+            'email_verified_at' => $admin->email_verified_at ?? now(),
+        ])->save();
     }
 }

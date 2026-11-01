@@ -12,21 +12,24 @@ class ProductImageController extends Controller
 {
     public function store(Request $request, $product_id)
     {
+        // Vercel rejects request bodies over 4.5 MB, so cap uploads at 4 MB.
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
-        $file = $request->file('image');
-        $path = $file->store('products', 'public');
+        $disk = config('filesystems.product_disk', 'public');
 
-        $isPrimary = !ProductImage::where('product_id', $product_id)->exists();
+        $file = $request->file('image');
+        $path = $file->store('products', $disk);
+
+        $isPrimary = ! ProductImage::where('product_id', $product_id)->exists();
 
         $image = ProductImage::create([
             'product_id' => $product_id,
             'path' => $path,
             'alt_text' => $request->input('alt_text', ''),
             'is_primary' => $isPrimary,
-            'sort_order' => ProductImage::where('product_id', $product_id)->max('sort_order') + 1,
+            'sort_order' => (int) ProductImage::where('product_id', $product_id)->max('sort_order') + 1,
         ]);
 
         ActivityLog::log('product_image_uploaded', $image, null, $image->toArray());
@@ -38,7 +41,7 @@ class ProductImageController extends Controller
     {
         $image = ProductImage::where('product_id', $product_id)->findOrFail($image_id);
 
-        Storage::disk('public')->delete($image->path);
+        Storage::disk(config('filesystems.product_disk', 'public'))->delete($image->path);
         $image->delete();
 
         ActivityLog::log('product_image_deleted', $image, $image->toArray(), null);

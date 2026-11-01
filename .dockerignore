@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+
+# Dependencies
+node_modules
+vendor
+
+# Build outputs
+public/build
+public/hot
+public/storage
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+storage/logs/*
+
+# Cache
+bootstrap/cache/*
+!bootstrap/cache/.gitkeep
+
+# Testing
+phpunit.xml
+coverage
+
+# Docker
+docker-compose.yml
+docker-compose.override.yml
+.docker/
+
+# Vercel
+.vercel
+
+# Misc
+*.md
+!README.md
+docs/

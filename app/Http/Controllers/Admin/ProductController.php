@@ -112,7 +112,13 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::withoutTrashed()
-            ->with(['category', 'brand', 'images' => fn($q) => $q->orderBy('sort_order'), 'specifications'])
+            ->with([
+                'category',
+                'brand',
+                'images' => fn($q) => $q->orderBy('sort_order'),
+                'specifications',
+                'variants.image',
+            ])
             ->findOrFail($id);
 
         return Inertia::render('Admin/Products/Show', [
@@ -123,7 +129,7 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = Product::withoutTrashed()
-            ->with(['specifications'])
+            ->with(['specifications', 'images' => fn($q) => $q->orderBy('sort_order'), 'variants'])
             ->findOrFail($id);
 
         return Inertia::render('Admin/Products/Edit', [
